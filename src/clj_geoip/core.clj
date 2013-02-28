@@ -2,7 +2,9 @@
   "Thin Clojure layer on top of the GeoIP Java API.
 Use `geoip-init` and `geoip-close` to start and stop the service and `lookup` to
 lookup information about the given IP."
-  (import com.maxmind.geoip.LookupService))
+  (use clojure.java.io)
+  (import com.maxmind.geoip.LookupService
+          java.io.File))
 
 ;; Setup
 ;; ============
@@ -10,8 +12,8 @@ lookup information about the given IP."
 (def ^{:private true :dynamic true
        :doc "Location of the GeoIP DB files."}
   *dbs*
-  {:city "resources/GeoLiteCity.dat"
-   :asn  "resources/GeoIPASNum.dat"})
+  {:city (-> "GeoLiteCity.dat" resource .toURI File.)
+   :asn  (-> "GeoIPASNum.dat" resource .toURI File.)})
 
 ;; Refs to hold the two GeoIP DB files.
 ;; They should be private so no one messes around with them.
