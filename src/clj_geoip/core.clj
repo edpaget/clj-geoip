@@ -1,33 +1,30 @@
 (ns clj-geoip.core
   "Thin Clojure layer on top of the GeoIP Java API.
-Use `geoip-init` and `geoip-close` to start and stop the service and `lookup` to
-lookup information about the given IP."
-  (use clojure.java.io)
-  (import com.maxmind.geoip.LookupService
-          java.io.File))
+  Use `geoip-init` and `geoip-close` to start and stop the service and `lookup` to
+  lookup information about the given IP."
+  (:require [clojure.java.io :refer :all])
+  (:import [com.maxmind.geoip LookupService]))
 
 ;; Setup
 ;; ============
 
-(def ^{:private true :dynamic true
-       :doc "Location of the GeoIP DB files."}
-  *dbs*
-  {:city (-> "GeoLiteCity.dat" resource .toURI File.)
-   :asn  (-> "GeoIPASNum.dat" resource .toURI File.)})
-
-;; Refs to hold the two GeoIP DB files.
 ;; They should be private so no one messes around with them.
 (def ^{:private true} geoip-city (ref nil))
 (def ^{:private true} geoip-asn (ref nil))
+
+(defn get-dbs
+  []
+  {:city (-> "./GeoLiteCity.dat" resource .toURI java.io.File.)
+   :asn  (-> "./GeoIPASNum.dat" resource .toURI java.io.File.)})
 
 (defn- geoip-mode
   "Looks up the matching mode to the given keyword."
   [mode]
   (case mode
-      :memory 1
-      :check  2
-      :index  4
-      0))
+    :memory 1
+    :check  2
+    :index  4
+    0))
 
 (defn- geoip-init-db
   "Initializes a new LookupService with the given file and mode."
@@ -38,24 +35,26 @@ lookup information about the given IP."
 
 (defn geoip-init
   "Initializes the GeoIP service.
-The modes `:memory`, `:check` or `:index` are possible."
-  [& [mode]]
+  The modes `:memory`, `:check` or `:index` are possible."
+  [& [dbfn mode]]
   (dosync
-   (let [city (geoip-init-db (:city *dbs*) mode)
-         asn (geoip-init-db (:asn *dbs*) mode)]
-     (ref-set geoip-city city)
-     (ref-set geoip-asn asn)
-     true)))
-
+    (let [dbfn (or dbfn get-dbs)
+          dbs (dbfn)
+          city (geoip-init-db (:city dbs) mode)
+          asn (geoip-init-db (:asn dbs) mode)]
+      (ref-set geoip-city city)
+      (ref-set geoip-asn asn)
+      true)))
+ 
 (defn geoip-close
   "Shuts down the GeoIP service."
   []
   (dosync
-   (.close @geoip-asn)
-   (ref-set geoip-asn nil)
-   (.close @geoip-city)
-   (ref-set geoip-city nil)
-   true))
+    (.close @geoip-asn)
+    (ref-set geoip-asn nil)
+    (.close @geoip-city)
+    (ref-set geoip-city nil)
+    true))
 
 
 ;; Helper

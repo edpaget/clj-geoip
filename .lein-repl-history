@@ -1,0 +1,16 @@
+(require 'clj-geoip.core)
+(user 'clj-geoip.core)
+(use 'clj-geoip.core)
+(geoip-init)
+(use 'clj-geoip.core)
+(geoip-init)
+(use 'clj-geoip.core)
+(geoip-init)
+(use 'clj-geoip.core)
+(geoip-init)
+exut
+exit
+(use 'clj-geoip.core)
+(geoip-init)
+(lookup "8.8.8.8")
+exit
