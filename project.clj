@@ -8,8 +8,8 @@ Please have a look at the GeoIP homepage at http://www.maxmind.com/app/ip-locati
             :comments "same as Clojure"}
   :resource-paths ["resources"]
   :min-lein-version "2.0.0"
-  :java-source-paths ["java"]
   :aot :all
-  :dependencies [[org.clojure/clojure "1.4.0"]]
+  :dependencies [[org.clojure/clojure "1.4.0"]
+                 [com.maxmind.geoip/geoip-api "1.2.11"]]
   :dev-dependencies [[lein-marginalia "0.7.0"]]
   :plugins [[lein-swank "1.4.4"]])
